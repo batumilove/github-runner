@@ -15,8 +15,53 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - runner-work:/runner/_work
-      - ./runner-entrypoint.sh:/runner-entrypoint.sh:ro
-    entrypoint: ["/bin/bash", "-c", "cp /runner-entrypoint.sh /tmp/runner-entrypoint.sh && chmod +x /tmp/runner-entrypoint.sh && /tmp/runner-entrypoint.sh"]
+    entrypoint: 
+      - /bin/bash
+      - -c
+      - |
+        echo "GitHub Actions Runner - Ephemeral Mode"
+        echo "Organization: ${GITHUB_ORG}"
+        
+        # Function to fetch token using PAT
+        fetch_token_with_pat() {
+            if [ -n "${GITHUB_PAT}" ]; then
+                echo "Fetching registration token using PAT..."
+                curl -s -X POST \
+                    -H "Authorization: token ${GITHUB_PAT}" \
+                    -H "Accept: application/vnd.github+json" \
+                    "https://api.github.com/orgs/${GITHUB_ORG}/actions/runners/registration-token" | \
+                    jq -r '.token'
+            fi
+        }
+        
+        # Main loop
+        while true; do
+            if [ -z "${RUNNER_TOKEN}" ] && [ -n "${GITHUB_PAT}" ]; then
+                echo "Fetching token with PAT..."
+                RUNNER_TOKEN=$(fetch_token_with_pat)
+                if [ -z "${RUNNER_TOKEN}" ]; then
+                    echo "Failed to fetch token. Check PAT permissions (needs admin:org)"
+                    sleep 60
+                    continue
+                fi
+            elif [ -z "${RUNNER_TOKEN}" ]; then
+                echo "ERROR: No RUNNER_TOKEN or GITHUB_PAT provided!"
+                sleep 60
+                continue
+            fi
+            
+            echo "Configuring runner..."
+            ./config.sh --unattended --ephemeral --url "${ORG_URL}" \
+                --token "${RUNNER_TOKEN}" --name "${RUNNER_NAME}" \
+                --labels "${RUNNER_LABELS}" --work "${RUNNER_WORKDIR}" --replace
+            
+            echo "Starting runner..."
+            ./run.sh
+            
+            echo "Runner exited. Refreshing token for next job..."
+            unset RUNNER_TOKEN
+            sleep 5
+        done
     restart: unless-stopped
 
 volumes:
