@@ -1,0 +1,23 @@
+services:
+  runner:
+    image: ghcr.io/actions/actions-runner:latest
+    container_name: gh-runner-${CONTAINER_NAME:-ephemeral}
+    environment:
+      RUNNER_NAME: ${RUNNER_NAME:-runner-ephemeral-$$}
+      RUNNER_LABELS: ${RUNNER_LABELS:-self-hosted,docker,linux,org}
+      RUNNER_SCOPE: org
+      ORG_URL: https://github.com/${GITHUB_ORG}
+      EPHEMERAL: "true"
+      RUNNER_WORKDIR: /runner/_work
+      RUNNER_TOKEN: ${RUNNER_TOKEN}
+      GITHUB_PAT: ${GITHUB_PAT:-}
+      GITHUB_ORG: ${GITHUB_ORG}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - runner-work:/runner/_work
+      - ./runner-entrypoint-new.sh:/runner-entrypoint.sh:ro
+    entrypoint: ["/bin/bash", "/runner-entrypoint.sh"]
+    restart: unless-stopped
+
+volumes:
+  runner-work:

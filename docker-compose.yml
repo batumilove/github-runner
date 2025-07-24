@@ -45,21 +45,21 @@ services:
                     -H "Accept: application/vnd.github+json" \
                     "https://api.github.com/orgs/${GITHUB_ORG}/actions/runners/registration-token")
                 
-                http_status=$(echo "$response" | grep "HTTP_STATUS:" | cut -d: -f2)
-                body=$(echo "$response" | sed '$d')
+                http_status=$(echo "\$response" | grep "HTTP_STATUS:" | cut -d: -f2)
+                body=$(echo "\$response" | sed '$d')
                 
-                echo "HTTP Status: $http_status"
-                echo "Response: $body"
+                echo "HTTP Status: \$http_status"
+                echo "Response: \$body"
                 
-                if [ "$http_status" != "201" ]; then
-                    echo "Failed to get token. HTTP status: $http_status"
+                if [ "\$http_status" != "201" ]; then
+                    echo "Failed to get token. HTTP status: \$http_status"
                     return 1
                 fi
                 
                 # Extract token
-                token=$(echo "$body" | jq -r '.token' 2>/dev/null)
-                if [ "$token" != "null" ] && [ -n "$token" ]; then
-                    echo "$token"
+                token=$(echo "\$body" | jq -r '.token' 2>/dev/null)
+                if [ "\$token" != "null" ] && [ -n "\$token" ]; then
+                    echo "\$token"
                 else
                     echo "Failed to extract token from response"
                     return 1
