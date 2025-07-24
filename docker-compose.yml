@@ -16,7 +16,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       - runner-work:/runner/_work
       - ./runner-entrypoint.sh:/runner-entrypoint.sh:ro
-    entrypoint: ["/bin/bash", "-c", "chmod +x /runner-entrypoint.sh && /runner-entrypoint.sh"]
+    entrypoint: ["/bin/bash", "-c", "cp /runner-entrypoint.sh /tmp/runner-entrypoint.sh && chmod +x /tmp/runner-entrypoint.sh && /tmp/runner-entrypoint.sh"]
     restart: unless-stopped
 
 volumes:
