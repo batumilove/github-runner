@@ -19,7 +19,8 @@ gh api -H "Accept: application/vnd.github+json" /orgs/YOUR_ORG/actions/runners/r
 # Add to .env as GITHUB_PAT
 
 # 3. Run
-docker compose up -d
+# IMPORTANT: Use docker-compose-new.yml for working configuration
+docker-compose -f docker-compose-new.yml up -d
 ```
 
 ## Using in Workflows
@@ -30,6 +31,10 @@ runs-on: [self-hosted, docker, linux, org]
 
 ## Commands
 
-- **Logs:** `docker compose logs -f`
-- **Stop:** `docker compose down`
-- **Update:** `docker compose pull && docker compose up -d`
+- **Logs:** `docker-compose -f docker-compose-new.yml logs -f`
+- **Stop:** `docker-compose -f docker-compose-new.yml down`
+- **Update:** `docker-compose -f docker-compose-new.yml pull && docker-compose -f docker-compose-new.yml up -d`
+
+## Important Note
+
+The original `docker-compose.yml` has syntax errors in the entrypoint script. Please use `docker-compose-new.yml` which uses an external entrypoint script (`runner-entrypoint-new.sh`) for proper functionality.
