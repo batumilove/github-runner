@@ -33,9 +33,9 @@ while true; do
         export RUNNER_TOKEN
     elif [ -z "${RUNNER_TOKEN}" ]; then
         echo "ERROR: No RUNNER_TOKEN or GITHUB_PAT provided!"
-        echo "Either:"
-        echo "  1. Run ./setup.sh to fetch a token"
-        echo "  2. Add GITHUB_PAT to .env for automatic token refresh"
+        echo "Please set one of these environment variables:"
+        echo "  - GITHUB_PAT: Personal Access Token with admin:org scope"
+        echo "  - RUNNER_TOKEN: Registration token from GitHub"
         echo "Retrying in 60 seconds..."
         sleep 60
         continue
