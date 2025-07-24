@@ -1,4 +1,4 @@
-#\!/bin/bash
+#!/bin/bash
 
 echo "GitHub Actions Runner - Ephemeral Mode"
 echo "Organization: ${GITHUB_ORG}"
