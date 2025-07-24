@@ -1,0 +1,39 @@
+name: Example Self-Hosted Runner Workflow
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test-runner:
+    runs-on: [self-hosted, docker, linux, org]
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Test Docker access
+        run: |
+          echo "Testing Docker access..."
+          docker version
+          docker ps
+      
+      - name: Build test image
+        run: |
+          cat > Dockerfile.test << 'EOF'
+          FROM alpine:latest
+          RUN echo "Hello from self-hosted runner!"
+          CMD ["echo", "Container running successfully"]
+          EOF
+          
+          docker build -f Dockerfile.test -t test-image:latest .
+          docker run --rm test-image:latest
+      
+      - name: Environment info
+        run: |
+          echo "Runner name: $RUNNER_NAME"
+          echo "Runner OS: $RUNNER_OS"
+          echo "Runner arch: $RUNNER_ARCH"
+          uname -a
