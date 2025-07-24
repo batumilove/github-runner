@@ -1,8 +1,6 @@
-version: "3.8"
-
 services:
   runner:
-    image: ghcr.io/actions/runner:latest
+    image: ghcr.io/actions/actions-runner:latest
     container_name: gh-runner-${CONTAINER_NAME:-ephemeral}
     environment:
       RUNNER_NAME: ${RUNNER_NAME:-runner-ephemeral-$$}
