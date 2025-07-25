@@ -15,12 +15,24 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - runner-work:/runner/_work
+    group_add:
+      - ${DOCKER_GID:-999}
     entrypoint: 
       - /bin/bash
       - -c
       - |
         echo "GitHub Actions Runner - Ephemeral Mode"
         echo "Organization: $${GITHUB_ORG}"
+        
+        # Install Docker CLI if not present
+        if ! command -v docker &> /dev/null; then
+            echo "Installing Docker CLI..."
+            apt-get update && apt-get install -y docker.io
+        fi
+        
+        # Test Docker access
+        echo "Testing Docker access..."
+        docker info | grep -E "Swarm|Server Version" || echo "Docker access test failed"
         
         # Function to fetch token using PAT
         fetch_token_with_pat() {
